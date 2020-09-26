@@ -1,22 +1,22 @@
+"""Mailroom donations webapp"""
 import os
-import base64
-
-from flask import Flask, render_template, request, redirect, url_for, session
-
+from flask import Flask, render_template, request, redirect, url_for
+from peewee import IntegrityError, DoesNotExist
 from model import Donor, Donation
 
-from peewee import IntegrityError, DoesNotExist
 
 app = Flask(__name__)
 
 
 @app.route('/')
 def home():
-    return redirect(url_for('all'))
+    """homepage"""
+    return redirect(url_for('all_donations'))
 
 
 @app.route('/donations/')
-def all():
+def all_donations():
+    """list all donations in the db"""
     donations = Donation.select()
     return render_template('donations.jinja2', donations=donations)
 
@@ -48,13 +48,15 @@ def create():
         Donation.create(donor=donor,
                         value=request.form['value'])
 
-        return redirect(url_for('all'))
+        return redirect(url_for('all_donations'))
 
     else:
         return render_template('create.jinja2')
 
+
 @app.route('/single_donor', methods=['GET', 'POST'])
 def single_donor():
+    """get all donations for a single donor"""
     if request.method == 'POST':
         try:
             donor_name = request.form['name']
